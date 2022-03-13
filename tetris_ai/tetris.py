@@ -1,7 +1,7 @@
-import pygame
-
+from collections import namedtuple
 from random import choice
 
+import pygame
 
 BOX_SIZE = 20
 GRID_SIZE_X = 10
@@ -10,14 +10,51 @@ FPS = 60
 WIDTH = BOX_SIZE * GRID_SIZE_X
 HEIGHT = BOX_SIZE * GRID_SIZE_Y
 
+ShapeTuple = namedtuple("Shape", ["name", "coordinates", "center", "color"])
+
 SHAPES = (
-    ("yellow", (0, 0), (1, 0), (0, 1), (1, 1)),  # square
-    ("lightblue", (0, 0), (1, 0), (2, 0), (3, 0)),  # line
-    ("orange", (2, 0), (0, 1), (1, 1), (2, 1)),  # right el
-    ("blue", (0, 0), (0, 1), (1, 1), (2, 1)),  # left el
-    ("green", (0, 1), (1, 1), (1, 0), (2, 0)),  # right wedge
-    ("red", (0, 0), (1, 0), (1, 1), (2, 1)),  # left wedge
-    ("purple", (1, 0), (0, 1), (1, 1), (2, 1)),  # symmetrical wedge
+    ShapeTuple(
+        name="O",
+        coordinates=((0, 0), (1, 0), (0, 1), (1, 1)),
+        center=None,
+        color="black",
+    ),
+    ShapeTuple(
+        name="I",
+        coordinates=((0, 0), (1, 0), (2, 0), (3, 0)),
+        center=(1, 0),
+        color="lightblue",
+    ),
+    ShapeTuple(
+        name="J",
+        coordinates=((2, 0), (0, 1), (1, 1), (2, 1)),
+        center=None,
+        color="orange",
+    ),
+    ShapeTuple(
+        name="L",
+        coordinates=((0, 0), (0, 1), (1, 1), (2, 1)),
+        center=None,
+        color="blue",
+    ),
+    ShapeTuple(
+        name="S",
+        coordinates=((0, 1), (1, 1), (1, 0), (2, 0)),
+        center=None,
+        color="green",
+    ),
+    ShapeTuple(
+        name="Z",
+        coordinates=((0, 0), (1, 0), (1, 1), (2, 1)),
+        center=None,
+        color="red",
+    ),
+    ShapeTuple(
+        name="T",
+        coordinates=((1, 0), (0, 1), (1, 1), (2, 1)),
+        center=None,
+        color="purple",
+    ),
 )
 
 
@@ -46,7 +83,7 @@ class Tetris:
             shape = self.next_shape or choice(SHAPES)
             self.next_shape = choice(SHAPES)
 
-        return Shape(self.field, shape=shape[1:])
+        return Shape(self.field, shape=shape)
 
     def save_current_shape(self):
         ...
@@ -102,22 +139,18 @@ class Tetris:
     def render(self):
         self.display.fill((255, 255, 255))
         self.canvas.fill((255, 255, 255))
-        [
-            pygame.draw.rect(self.display, (40, 40, 40), i_rect, 1)
-            for i_rect in self.grid
-        ]
-        figure_rect = pygame.Rect(0, 0, BOX_SIZE - 2, BOX_SIZE - 2)
 
-        for box in self.current_shape.boxes:
-            figure_rect.x = box.x * BOX_SIZE
-            figure_rect.y = box.y * BOX_SIZE
-            pygame.draw.rect(self.display, (0, 0, 0), figure_rect)
+        [pygame.draw.rect(self.display, (40, 40, 40), rect, 1) for rect in self.grid]
+
+        self.current_shape.render(parent=self.display)
 
         for y, raw in enumerate(self.field):
             for x, col in enumerate(raw):
                 if col:
-                    figure_rect.x, figure_rect.y = x * BOX_SIZE, y * BOX_SIZE
-                    pygame.draw.rect(self.display, col, figure_rect)
+                    figure = pygame.Rect(
+                        x * BOX_SIZE, y * BOX_SIZE, BOX_SIZE - 2, BOX_SIZE - 2
+                    )
+                    pygame.draw.rect(self.display, col, figure)
 
     def remove_complete_lines(self):
         ...
@@ -138,8 +171,11 @@ class Tetris:
 class Shape:
     def __init__(self, filed, shape=None):
         self.field = filed
+        self.name = shape.name
+        self.center = shape.center
         self.boxes = [
-            pygame.Rect(x + GRID_SIZE_X // 2 - 1, y + 1, 1, 1) for x, y in shape
+            pygame.Rect(x + GRID_SIZE_X // 2 - 1, y + 1, 1, 1)
+            for x, y in shape.coordinates
         ]
 
     def move(self, x, y):
@@ -193,6 +229,19 @@ class Shape:
             if not self.can_move_box(box, x, y):
                 return False
         return True
+
+    def render(self, parent: pygame.Surface):
+        for box in self.boxes:
+            figure = pygame.Rect(
+                box.x * BOX_SIZE, box.y * BOX_SIZE, BOX_SIZE - 2, BOX_SIZE - 2
+            )
+            pygame.draw.rect(parent, (0, 0, 0), figure)
+
+    def __str__(self):
+        return f"{self.name} Shape"
+
+    def __repr__(self):
+        return f"<{self.__str__()}>"
 
 
 if __name__ == "__main__":
