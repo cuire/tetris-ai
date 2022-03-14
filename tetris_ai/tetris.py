@@ -9,50 +9,51 @@ GRID_SIZE_Y = 20
 FPS = 60
 WIDTH = BOX_SIZE * GRID_SIZE_X
 HEIGHT = BOX_SIZE * GRID_SIZE_Y
+STARTING_POSITION = GRID_SIZE_X // 2 - 1
 
-ShapeTuple = namedtuple("Shape", ["name", "coordinates", "center", "color"])
+ShapeTuple = namedtuple("Shape", ["name", "coordinates", "can_be_rotated", "color"])
 
 SHAPES = (
     ShapeTuple(
         name="O",
         coordinates=((0, 0), (1, 0), (0, 1), (1, 1)),
-        center=None,
+        can_be_rotated=False,
         color="black",
     ),
     ShapeTuple(
         name="I",
         coordinates=((0, 0), (1, 0), (2, 0), (3, 0)),
-        center=(1, 0),
+        can_be_rotated=True,
         color="lightblue",
     ),
     ShapeTuple(
         name="J",
         coordinates=((2, 0), (0, 1), (1, 1), (2, 1)),
-        center=None,
+        can_be_rotated=True,
         color="orange",
     ),
     ShapeTuple(
         name="L",
         coordinates=((0, 0), (0, 1), (1, 1), (2, 1)),
-        center=None,
+        can_be_rotated=True,
         color="blue",
     ),
     ShapeTuple(
         name="S",
         coordinates=((0, 1), (1, 1), (1, 0), (2, 0)),
-        center=None,
+        can_be_rotated=True,
         color="green",
     ),
     ShapeTuple(
         name="Z",
         coordinates=((0, 0), (1, 0), (1, 1), (2, 1)),
-        center=None,
+        can_be_rotated=True,
         color="red",
     ),
     ShapeTuple(
         name="T",
         coordinates=((1, 0), (0, 1), (1, 1), (2, 1)),
-        center=None,
+        can_be_rotated=True,
         color="purple",
     ),
 )
@@ -172,11 +173,11 @@ class Shape:
     def __init__(self, filed, shape=None):
         self.field = filed
         self.name = shape.name
-        self.center = shape.center
         self.boxes = [
-            pygame.Rect(x + GRID_SIZE_X // 2 - 1, y + 1, 1, 1)
+            pygame.Rect(x + STARTING_POSITION, y + 1, 1, 1)
             for x, y in shape.coordinates
         ]
+        self.center = self.boxes[2] if shape.can_be_rotated else None
 
     def move(self, x, y):
         if not self.can_move_shape(x, y):
@@ -194,18 +195,22 @@ class Shape:
         ...
 
     def rotate(self):
-        # TODO totaly broken and need debug
-        center = self.boxes[2]
+        center = self.center
+
+        # If center is None, shape can't be rotated
+        if center is None:
+            return False
 
         def rotation_coords(box):
             x = center.x - box.y + center.y
             y = center.y + box.x - center.x
             return x, y
 
+        # TODO check if the shape can be rotated with shift left and right when it reaches the bounds
         # Check if shape can be rotated
         for box in self.boxes:
             x, y = rotation_coords(box)
-            if not self.can_move_box(box, box.x - x, box.y - y):
+            if not self.can_move_box_to(x, y):
                 return False
 
         # Rotate shape
@@ -218,9 +223,12 @@ class Shape:
         self.boxes.clear()
 
     def can_move_box(self, box, x, y):
-        if box.x + x < 0 or box.x + x > GRID_SIZE_X - 1:
+        return self.can_move_box_to(box.x + x, box.y + y)
+
+    def can_move_box_to(self, x, y):
+        if x < 0 or x > GRID_SIZE_X - 1:
             return False
-        if box.y + y > GRID_SIZE_Y - 1 or self.field[box.y + y][box.x + x]:
+        if y > GRID_SIZE_Y - 1 or self.field[y][x]:
             return False
         return True
 
