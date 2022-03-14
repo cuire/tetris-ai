@@ -1,17 +1,17 @@
 from collections import namedtuple
+import dataclasses
 from random import choice
+import dataclasses
 
-import pygame
 
 BOX_SIZE = 20
-GRID_SIZE_X = 10
-GRID_SIZE_Y = 20
-FPS = 60
-WIDTH = BOX_SIZE * GRID_SIZE_X
-HEIGHT = BOX_SIZE * GRID_SIZE_Y
-STARTING_POSITION = GRID_SIZE_X // 2 - 1
 
-GREY = [50, 50, 50]
+
+@dataclasses
+class Point:
+    x: int
+    y: int
+
 
 ShapeTuple = namedtuple("Shape", ["name", "coordinates", "can_be_rotated", "color"])
 
@@ -62,49 +62,93 @@ SHAPES = (
 
 
 class Tetris:
-    def __init__(self):
+    """
+
+    ### Action Space
+    The action is a 'ndarray' which can take values from 1 to 7.
+    | Num | Action                    |
+    |-----|---------------------------|
+    | 1   | Rotate current_shape      |
+    | 2   | Move current_shape down   |
+    | 3   | Move current_shape left   |
+    | 4   | Move current_shape right  |
+    | 5   | 'Hard drop' current_shape |
+    | 6   | Hold current_shape        |
+    | 7   | Reset game variables      |
+
+    """
+
+    def __init__(self, grid_size_x: int, grid_size_y: int):
+        self.grid_size_x = grid_size_x
+        self.grid_size_y = grid_size_y
         self.reset()
 
+        self.field = None
+        self.current_shape = None
+        self.next_shape = None
+        self.shape_spawm_delay = None
+
     def reset(self):
-        self.field = [[0 for i in range(GRID_SIZE_X)] for j in range(GRID_SIZE_Y)]
+        self.field = [
+            [0 for x in range(self.grid_size_x)] for y in range(self.grid_size_y)
+        ]
         self.next_shape = None
         self.current_shape = self.spawn_new_shape()
-        self.anim = 0
-        self.anim_limit = 2000
+        self.shape_spawm_delay = self.get_shape_spawn_delay()
 
-    def spawn_new_shape(self, shape=None):
+    def spawn_new_shape(self, shape: ShapeTuple = None):
         if shape is None:
             shape = self.next_shape or choice(SHAPES)
             self.next_shape = choice(SHAPES)
 
-        return Shape(self.field, shape=shape)
+        return Shape(board=self, shape=shape)
 
-    def save_current_shape(self):
+    def hold_current_shape(self):
         ...
 
     def level_up(self):
         ...
 
-    def _game_logic(self):
-        self.anim += 60
-        if self.anim > self.anim_limit:
-            if not self.current_shape.fall():
-                self.froze_shape()
-                self.current_shape = self.spawn_new_shape()
+    def step(self, action: int):
+        self.handle_action(self, action)
 
-                if self.is_game_over():
-                    self.game_over()
-            self.anim = 0
+        self.shape_spawm_delay -= 1
+        if self.shape_spawm_delay <= 0:
+            is_shape_falling = self.current_shape.fall()
+            self.shape_spawm_delay = self.get_shape_spawn_delay()
 
-    def froze_shape(self):
-        for i in range(4):
+        if is_shape_falling:
+            self.froze_current_shape()
+            self.current_shape = self.spawn_new_shape()
 
-            self.field[self.current_shape.boxes[i].y][
-                self.current_shape.boxes[i].x
-            ] = GREY
+            if self.is_game_over():
+                self.game_over()
+
+    def handle_action(self, action: int):
+        if action == 1:
+            self.current_shape.rotate()
+        if action == 2:
+            self.current_shape.move(x=0, y=1)
+        if action == 3:
+            self.current_shape.move(x=-1, y=0)
+        if action == 4:
+            self.current_shape.move(x=1, y=0)
+        if action == 5:
+            self.current_shape.hard_drop()
+        if action == 6:
+            self.hold_current_shape()
+        if action == 7:
+            self.reset()
+
+    def froze_current_shape(self):
+        for box in self.current_shape.boxes:
+            self.field[box.y][box.x] = 1
 
     def remove_complete_lines(self):
         ...
+
+    def get_shape_spawn_delay(self):
+        return 10
 
     def is_game_over(self):
         """
@@ -120,16 +164,17 @@ class Tetris:
 
 
 class Shape:
-    def __init__(self, filed, shape=None):
-        self.field = filed
+    def __init__(self, board: Tetris, shape: ShapeTuple = None):
         self.name = shape.name
+        self.board = board
+
+        starting_position = board.grid_size_x // 2 - 1
         self.boxes = [
-            pygame.Rect(x + STARTING_POSITION, y + 1, 1, 1)
-            for x, y in shape.coordinates
+            Point(x=x + starting_position, y=y + 1) for x, y in shape.coordinates
         ]
         self.center = self.boxes[2] if shape.can_be_rotated else None
 
-    def move(self, x, y):
+    def move(self, x: int, y: int):
         if not self.can_move_shape(x, y):
             return False
         else:
@@ -172,17 +217,17 @@ class Shape:
     def delete(self):
         self.boxes.clear()
 
-    def can_move_box(self, box, x, y):
+    def can_move_box(self, box: Point, x: int, y: int):
         return self.can_move_box_to(box.x + x, box.y + y)
 
-    def can_move_box_to(self, x, y):
-        if x < 0 or x > GRID_SIZE_X - 1:
+    def can_move_box_to(self, x: int, y: int):
+        if x < 0 or x > self.board.grid_size_x - 1:
             return False
-        if y > GRID_SIZE_Y - 1 or self.field[y][x]:
+        if y > self.board.grid_size_y - 1 or self.board.field[y][x]:
             return False
         return True
 
-    def can_move_shape(self, x, y):
+    def can_move_shape(self, x: int, y: int):
         for box in self.boxes:
             if not self.can_move_box(box, x, y):
                 return False
@@ -193,3 +238,7 @@ class Shape:
 
     def __repr__(self):
         return f"<{self.__str__()}>"
+
+
+if __name__ == "__main__":
+    ...
