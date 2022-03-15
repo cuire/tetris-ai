@@ -3,8 +3,8 @@ import pygame
 FPS = 60
 
 
-class View:
-    def __init__(self, game, parent: pygame.Surface, box_size):
+class TetrisView:
+    def __init__(self, game, parent: pygame.Surface, box_size=20):
         self.clock = pygame.time.Clock()
         self.width = box_size * game.grid_size_x
         self.height = box_size * game.grid_size_y
@@ -12,7 +12,7 @@ class View:
         self.display = parent
         self.game = game
 
-    def render(self, game):
+    def render(self):
         self.display.fill((255, 255, 255))
 
         self._render_grid(self.game.grid_size_x, self.game.grid_size_y)

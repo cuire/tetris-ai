@@ -1,8 +1,6 @@
+import dataclasses
 from collections import namedtuple
-import dataclasses
 from random import choice
-import dataclasses
-
 
 BOX_SIZE = 20
 
@@ -78,15 +76,15 @@ class Tetris:
 
     """
 
-    def __init__(self, grid_size_x: int, grid_size_y: int):
+    def __init__(self, grid_size_x: int = 10, grid_size_y: int = 20):
         self.grid_size_x = grid_size_x
         self.grid_size_y = grid_size_y
-        self.reset()
 
         self.field = None
         self.current_shape = None
         self.next_shape = None
         self.shape_spawm_delay = None
+        self.reset()
 
     def reset(self):
         self.field = [
