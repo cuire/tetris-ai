@@ -34,7 +34,7 @@ class TetrisView:
                         self.box_size - 2,
                         self.box_size - 2,
                     )
-                    pygame.draw.rect(self.display, col, figure)
+                    pygame.draw.rect(self.display, 1, figure)
 
     def _render_grid(self, grid_size_x, grid_size_y):
         for x in range(grid_size_x):

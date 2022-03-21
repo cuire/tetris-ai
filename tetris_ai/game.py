@@ -2,6 +2,8 @@ from collections import namedtuple
 from dataclasses import dataclass
 from random import choice
 
+import numpy as np
+
 BOX_SIZE = 20
 
 
@@ -80,16 +82,21 @@ class Tetris:
         self.grid_size_x = grid_size_x
         self.grid_size_y = grid_size_y
 
-        self.field = None
-        self.current_shape = None
-        self.next_shape = None
-        self.shape_spawm_delay = None
+        self.field: np.ndarray = None
+        self.current_shape: Shape = None
+        self.can_hold_shape: bool = None
+        self.holded_shape: ShapeTuple = None
+        self.next_shape: ShapeTuple = None
+        self.shape_spawm_delay: int = None
 
-    def reset(self):
-        self.field = [
-            [0 for x in range(self.grid_size_x)] for y in range(self.grid_size_y)
-        ]
+    def reset(self, field: np.ndarray = None):
+        if field is None:
+            self.field = np.zeros((self.grid_size_y, self.grid_size_x), dtype=int)
+        else:
+            self.field = field
+
         self.next_shape = None
+        self.can_hold_shape = True
         self.current_shape = self.spawn_new_shape()
         self.shape_spawm_delay = self.get_shape_spawn_delay()
 
@@ -101,12 +108,22 @@ class Tetris:
         return Shape(board=self, shape=shape)
 
     def hold_current_shape(self):
-        ...
+        if not self.can_hold_shape:
+            return
+
+        current_shape = self.current_shape.shape
+        self.current_shape = self.spawn_new_shape(shape=self.holded_shape)
+        self.holded_shape = current_shape
+
+        self.can_hold_shape = False
 
     def level_up(self):
         ...
 
     def step(self, action: int):
+        reward = 0
+        done = False
+
         self.handle_action(action)
 
         self.shape_spawm_delay -= 1
@@ -116,10 +133,13 @@ class Tetris:
 
             if not is_shape_falling:
                 self.froze_current_shape()
+                removed_lines_count = self.remove_complete_lines()
                 self.current_shape = self.spawn_new_shape()
 
-                if self.is_game_over():
-                    self.game_over()
+                reward = removed_lines_count * 100
+                done = self.is_game_over()
+
+        return reward, done
 
     def handle_action(self, action: int):
         if action == 1:
@@ -140,6 +160,7 @@ class Tetris:
     def froze_current_shape(self):
         for box in self.current_shape.boxes:
             self.field[box.y][box.x] = 1
+        self.can_hold_shape = True
 
     def remove_complete_lines(self):
         ...
@@ -161,14 +182,15 @@ class Tetris:
 
 
 class Shape:
-    def __init__(self, board: Tetris, shape: ShapeTuple = None):
+    def __init__(self, board: Tetris, shape: ShapeTuple):
         self.name = shape.name
         self.board = board
+        self.shape = shape
 
         starting_position = board.grid_size_x // 2 - 1
-        self.boxes = [
-            Point(x=x + starting_position, y=y + 1) for x, y in shape.coordinates
-        ]
+        self.boxes = np.array(
+            [Point(x=x + starting_position, y=y + 1) for x, y in shape.coordinates]
+        )
         self.center = self.boxes[2] if shape.can_be_rotated else None
 
     def move(self, x: int, y: int):
