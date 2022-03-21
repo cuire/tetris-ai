@@ -1,10 +1,12 @@
 import pygame
 
+from tetris_ai.game import Tetris
+
 FPS = 60
 
 
 class TetrisView:
-    def __init__(self, game, parent: pygame.Surface, box_size=20):
+    def __init__(self, game: Tetris, parent: pygame.Surface, box_size=20):
         self.clock = pygame.time.Clock()
         self.width = box_size * game.grid_size_x
         self.height = box_size * game.grid_size_y

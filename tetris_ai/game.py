@@ -1,11 +1,11 @@
-import dataclasses
 from collections import namedtuple
+from dataclasses import dataclass
 from random import choice
 
 BOX_SIZE = 20
 
 
-@dataclasses
+@dataclass
 class Point:
     x: int
     y: int
@@ -84,7 +84,6 @@ class Tetris:
         self.current_shape = None
         self.next_shape = None
         self.shape_spawm_delay = None
-        self.reset()
 
     def reset(self):
         self.field = [
@@ -108,19 +107,19 @@ class Tetris:
         ...
 
     def step(self, action: int):
-        self.handle_action(self, action)
+        self.handle_action(action)
 
         self.shape_spawm_delay -= 1
         if self.shape_spawm_delay <= 0:
             is_shape_falling = self.current_shape.fall()
             self.shape_spawm_delay = self.get_shape_spawn_delay()
 
-        if is_shape_falling:
-            self.froze_current_shape()
-            self.current_shape = self.spawn_new_shape()
+            if not is_shape_falling:
+                self.froze_current_shape()
+                self.current_shape = self.spawn_new_shape()
 
-            if self.is_game_over():
-                self.game_over()
+                if self.is_game_over():
+                    self.game_over()
 
     def handle_action(self, action: int):
         if action == 1:
