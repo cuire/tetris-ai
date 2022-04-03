@@ -163,7 +163,20 @@ class Tetris:
         self.can_hold_shape = True
 
     def remove_complete_lines(self):
-        ...
+        complete_lines = [
+            index for index in range(len(self.field)) if all(self.field[index])
+        ]
+
+        self.field = np.delete(self.field, complete_lines, axis=0)
+
+        self.field = np.insert(
+            self.field,
+            0,
+            np.zeros((len(complete_lines), self.grid_size_x), dtype=int),
+            axis=0,
+        )
+
+        return len(complete_lines)
 
     def get_shape_spawn_delay(self):
         return 10
