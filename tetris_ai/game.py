@@ -123,6 +123,8 @@ class Tetris:
         ...
 
     def step(self, action: int):
+        assert self.field is not None
+
         reward = 0
         done = False
 
@@ -258,7 +260,7 @@ class Shape:
     def can_move_box_to(self, x: int, y: int):
         if x < 0 or x > self.board.grid_size_x - 1:
             return False
-        if y > self.board.grid_size_y - 1 or self.board.field[y][x]:
+        if y > self.board.grid_size_y - 1 or y < 0 or self.board.field[y][x]:
             return False
         return True
 

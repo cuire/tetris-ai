@@ -145,3 +145,68 @@ def test_game_is_not_over():
     game = Tetris()
     game.reset()
     assert not game.is_game_over()
+
+
+@pytest.mark.parametrize(
+    "x, y, expected",
+    [
+        (0, 1, True),
+        (0, 2, True),
+        (-1, 0, True),
+        (-15, 0, False),
+        (0, -15, False),
+    ],
+)
+def test_can_move_shape_on_empty_field(x, y, expected):
+    game = Tetris(grid_size_x=10, grid_size_y=20)
+    game.reset()
+    shape = Shape(board=game, shape=SHAPES[0])
+    assert shape.can_move_shape(x, y) is expected
+
+
+def test_can_move_shape_on_filled_field():
+    game = Tetris()
+    test_field = np.array(
+        [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ]
+    )
+    game.reset(field=test_field)
+    shape = Shape(board=game, shape=SHAPES[0])
+    assert shape.can_move_shape(1, 1) is False
+
+
+@pytest.mark.parametrize(
+    "x, y, expected",
+    [
+        (0, 1, True),
+        (0, 2, True),
+        (-1, 0, True),
+        (-15, 0, False),
+        (0, -15, False),
+    ],
+)
+def test_move_shape(x, y, expected):
+    game = Tetris(grid_size_x=10, grid_size_y=20)
+    game.reset()
+    shape = Shape(board=game, shape=SHAPES[0])
+    assert shape.move(x, y) is expected
