@@ -89,7 +89,7 @@ class Tetris:
         self.next_shape: ShapeTuple = None
         self.shape_spawm_delay: int = None
 
-    def reset(self, field: np.ndarray = None):
+    def reset(self, field: np.ndarray = None, starting_shape=None):
         if field is None:
             self.field = np.zeros((self.grid_size_y, self.grid_size_x), dtype=int)
         else:
@@ -97,7 +97,7 @@ class Tetris:
 
         self.next_shape = None
         self.can_hold_shape = True
-        self.current_shape = self.spawn_new_shape()
+        self.current_shape = self.spawn_new_shape(shape=starting_shape)
         self.shape_spawm_delay = self.get_shape_spawn_delay()
 
     def spawn_new_shape(self, shape: ShapeTuple = None):
@@ -109,13 +109,15 @@ class Tetris:
 
     def hold_current_shape(self):
         if not self.can_hold_shape:
-            return
+            return False
 
         current_shape = self.current_shape.shape
         self.current_shape = self.spawn_new_shape(shape=self.holded_shape)
         self.holded_shape = current_shape
 
         self.can_hold_shape = False
+
+        return True
 
     def level_up(self):
         ...
