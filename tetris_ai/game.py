@@ -133,6 +133,8 @@ class Tetris:
 
             if not is_shape_falling:
                 self.froze_current_shape()
+                self.can_hold_shape = True
+
                 removed_lines_count = self.remove_complete_lines()
                 self.current_shape = self.spawn_new_shape()
 
@@ -160,7 +162,6 @@ class Tetris:
     def froze_current_shape(self):
         for box in self.current_shape.boxes:
             self.field[box.y][box.x] = 1
-        self.can_hold_shape = True
 
     def remove_complete_lines(self):
         complete_lines = [
