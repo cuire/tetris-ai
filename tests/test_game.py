@@ -1,16 +1,7 @@
 import numpy as np
 import pytest
-from tetris_ai.game import (
-    J_SHAPE,
-    L_SHAPE,
-    O_SHAPE,
-    SHAPES,
-    T_SHAPE,
-    Z_SHAPE,
-    Shape,
-    ShapeTuple,
-    Tetris,
-)
+from tetris_ai.game import SHAPES, Tetris, Tetromino
+from tetris_ai.game.shape import *
 
 
 @pytest.mark.parametrize("x, y", [(1, 5), (2, 5), (3, 5), (4, 5), (10, 20)])
@@ -79,7 +70,7 @@ def test_froze_shape(shape):
     game.reset(starting_shape=shape)
     game.froze_current_shape()
 
-    frozen_shape_clone = Shape(board=game, shape=shape)
+    frozen_shape_clone = Tetromino(board=game, shape=shape)
     for box in frozen_shape_clone.boxes:
         assert game.field[box.y][box.x] == 1
 
@@ -123,12 +114,12 @@ def test_game_level_up(game_with_empty_field):
     ],
 )
 def test_can_move_shape_on_empty_field(game_with_empty_field, x, y, expected):
-    shape = Shape(board=game_with_empty_field, shape=O_SHAPE)
+    shape = Tetromino(board=game_with_empty_field, shape=O_SHAPE)
     assert shape.can_move_shape(x, y) is expected
 
 
 def test_can_move_shape_on_filled_field(game_with_filled_field):
-    shape = Shape(board=game_with_filled_field, shape=O_SHAPE)
+    shape = Tetromino(board=game_with_filled_field, shape=O_SHAPE)
     assert shape.can_move_shape(1, 1) is False
 
 
@@ -143,13 +134,13 @@ def test_can_move_shape_on_filled_field(game_with_filled_field):
     ],
 )
 def test_move_shape(game_with_empty_field, x, y, expected):
-    shape = Shape(board=game_with_empty_field, shape=O_SHAPE)
+    shape = Tetromino(board=game_with_empty_field, shape=O_SHAPE)
     assert shape.move(x, y) is expected
 
     if expected is False:
         return
 
-    new_shape = Shape(board=game_with_empty_field, shape=O_SHAPE)
+    new_shape = Tetromino(board=game_with_empty_field, shape=O_SHAPE)
     for box in new_shape.boxes:
         box.x += x
         box.y += y
@@ -163,7 +154,7 @@ def test_move_shape(game_with_empty_field, x, y, expected):
 def test_rotate_shape(shape):
     game = Tetris(grid_size_x=10, grid_size_y=20)
     game.reset()
-    tetromino = Shape(board=game, shape=shape)
+    tetromino = Tetromino(board=game, shape=shape)
     tetromino.move(0, 3)
     assert tetromino.rotate() is shape.can_be_rotated
 
@@ -199,7 +190,7 @@ def test_imposible_shape_rotation(shape):
         ]
     )
     game.reset(field=test_field)
-    tetromino = Shape(board=game, shape=shape)
+    tetromino = Tetromino(board=game, shape=shape)
 
     # move to lower bound of field
     assert tetromino.move(0, 2)
@@ -212,16 +203,16 @@ def test_shape_rotation_with_shift():
 
 
 def test_shape_fall(game_with_empty_field):
-    tetromino = Shape(board=game_with_empty_field, shape=O_SHAPE)
+    tetromino = Tetromino(board=game_with_empty_field, shape=O_SHAPE)
     assert tetromino.fall()
 
 
 def test_shape_hard_drop(game_with_empty_field):
     # TODO add checks
-    tetromino = Shape(board=game_with_empty_field, shape=O_SHAPE)
+    tetromino = Tetromino(board=game_with_empty_field, shape=O_SHAPE)
     tetromino.hard_drop()
 
 
 def test_shape_repr(game_with_empty_field):
-    tetromino = Shape(board=game_with_empty_field, shape=O_SHAPE)
-    assert tetromino.__repr__() == "<O Shape>"
+    tetromino = Tetromino(board=game_with_empty_field, shape=O_SHAPE)
+    assert tetromino.__repr__() == "<O Tetromino>"

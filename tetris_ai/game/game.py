@@ -1,8 +1,8 @@
-from collections import namedtuple
 from dataclasses import dataclass
 from random import choice
 
 import numpy as np
+from tetris_ai.game.shape import *
 
 BOX_SIZE = 20
 
@@ -12,57 +12,6 @@ class Point:
     x: int
     y: int
 
-
-ShapeTuple = namedtuple("Shape", ["name", "coordinates", "can_be_rotated", "color"])
-
-O_SHAPE = ShapeTuple(
-    name="O",
-    coordinates=((0, 0), (1, 0), (0, 1), (1, 1)),
-    can_be_rotated=False,
-    color="black",
-)
-
-I_SHAPE = ShapeTuple(
-    name="I",
-    coordinates=((0, 0), (1, 0), (2, 0), (3, 0)),
-    can_be_rotated=True,
-    color="lightblue",
-)
-
-J_SHAPE = ShapeTuple(
-    name="J",
-    coordinates=((2, 0), (0, 1), (1, 1), (2, 1)),
-    can_be_rotated=True,
-    color="orange",
-)
-
-L_SHAPE = ShapeTuple(
-    name="L",
-    coordinates=((0, 0), (0, 1), (1, 1), (2, 1)),
-    can_be_rotated=True,
-    color="blue",
-)
-
-S_SHAPE = ShapeTuple(
-    name="S",
-    coordinates=((0, 1), (1, 1), (1, 0), (2, 0)),
-    can_be_rotated=True,
-    color="green",
-)
-
-Z_SHAPE = ShapeTuple(
-    name="Z",
-    coordinates=((0, 0), (1, 0), (1, 1), (2, 1)),
-    can_be_rotated=True,
-    color="red",
-)
-
-T_SHAPE = ShapeTuple(
-    name="T",
-    coordinates=((1, 0), (0, 1), (1, 1), (2, 1)),
-    can_be_rotated=True,
-    color="purple",
-)
 
 SHAPES = (O_SHAPE, I_SHAPE, J_SHAPE, L_SHAPE, S_SHAPE, Z_SHAPE, T_SHAPE)
 
@@ -89,7 +38,7 @@ class Tetris:
         self.grid_size_y = grid_size_y
 
         self.field: np.ndarray = None
-        self.current_shape: Shape = None
+        self.current_shape: Tetromino = None
         self.can_hold_shape: bool = None
         self.holded_shape: ShapeTuple = None
         self.next_shape: ShapeTuple = None
@@ -115,7 +64,7 @@ class Tetris:
             shape = self.next_shape or choice(SHAPES)
             self.next_shape = choice(SHAPES)
 
-        return Shape(board=self, shape=shape)
+        return Tetromino(board=self, shape=shape)
 
     def hold_current_shape(self):
         if not self.can_hold_shape:
@@ -206,7 +155,7 @@ class Tetris:
         return False
 
 
-class Shape:
+class Tetromino:
     def __init__(self, board: Tetris, shape: ShapeTuple):
         self.name = shape.name
         self.board = board
@@ -275,11 +224,7 @@ class Shape:
         return True
 
     def __str__(self):
-        return f"{self.name} Shape"
+        return f"{self.name} Tetromino"
 
     def __repr__(self):
         return f"<{self.__str__()}>"
-
-
-if __name__ == "__main__":
-    ...
