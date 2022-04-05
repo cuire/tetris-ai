@@ -4,7 +4,7 @@ import gym
 import numpy as np
 import pygame
 from tetris_ai.game import Tetris
-from tetris_ai.veiw import TetrisView
+from tetris_ai.view import TetrisView
 
 
 class TetrisEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
