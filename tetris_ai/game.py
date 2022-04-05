@@ -15,50 +15,56 @@ class Point:
 
 ShapeTuple = namedtuple("Shape", ["name", "coordinates", "can_be_rotated", "color"])
 
-SHAPES = (
-    ShapeTuple(
-        name="O",
-        coordinates=((0, 0), (1, 0), (0, 1), (1, 1)),
-        can_be_rotated=False,
-        color="black",
-    ),
-    ShapeTuple(
-        name="I",
-        coordinates=((0, 0), (1, 0), (2, 0), (3, 0)),
-        can_be_rotated=True,
-        color="lightblue",
-    ),
-    ShapeTuple(
-        name="J",
-        coordinates=((2, 0), (0, 1), (1, 1), (2, 1)),
-        can_be_rotated=True,
-        color="orange",
-    ),
-    ShapeTuple(
-        name="L",
-        coordinates=((0, 0), (0, 1), (1, 1), (2, 1)),
-        can_be_rotated=True,
-        color="blue",
-    ),
-    ShapeTuple(
-        name="S",
-        coordinates=((0, 1), (1, 1), (1, 0), (2, 0)),
-        can_be_rotated=True,
-        color="green",
-    ),
-    ShapeTuple(
-        name="Z",
-        coordinates=((0, 0), (1, 0), (1, 1), (2, 1)),
-        can_be_rotated=True,
-        color="red",
-    ),
-    ShapeTuple(
-        name="T",
-        coordinates=((1, 0), (0, 1), (1, 1), (2, 1)),
-        can_be_rotated=True,
-        color="purple",
-    ),
+O_SHAPE = ShapeTuple(
+    name="O",
+    coordinates=((0, 0), (1, 0), (0, 1), (1, 1)),
+    can_be_rotated=False,
+    color="black",
 )
+
+I_SHAPE = ShapeTuple(
+    name="I",
+    coordinates=((0, 0), (1, 0), (2, 0), (3, 0)),
+    can_be_rotated=True,
+    color="lightblue",
+)
+
+J_SHAPE = ShapeTuple(
+    name="J",
+    coordinates=((2, 0), (0, 1), (1, 1), (2, 1)),
+    can_be_rotated=True,
+    color="orange",
+)
+
+L_SHAPE = ShapeTuple(
+    name="L",
+    coordinates=((0, 0), (0, 1), (1, 1), (2, 1)),
+    can_be_rotated=True,
+    color="blue",
+)
+
+S_SHAPE = ShapeTuple(
+    name="S",
+    coordinates=((0, 1), (1, 1), (1, 0), (2, 0)),
+    can_be_rotated=True,
+    color="green",
+)
+
+Z_SHAPE = ShapeTuple(
+    name="Z",
+    coordinates=((0, 0), (1, 0), (1, 1), (2, 1)),
+    can_be_rotated=True,
+    color="red",
+)
+
+T_SHAPE = ShapeTuple(
+    name="T",
+    coordinates=((1, 0), (0, 1), (1, 1), (2, 1)),
+    can_be_rotated=True,
+    color="purple",
+)
+
+SHAPES = (O_SHAPE, I_SHAPE, J_SHAPE, L_SHAPE, S_SHAPE, Z_SHAPE, T_SHAPE)
 
 
 class Tetris:
@@ -89,7 +95,9 @@ class Tetris:
         self.next_shape: ShapeTuple = None
         self.shape_spawm_delay: int = None
 
-    def reset(self, field: np.ndarray = None, starting_shape=None):
+        self.gravity = None
+
+    def reset(self, field: np.ndarray = None, starting_shape=None, gravity=True):
         if field is None:
             self.field = np.zeros((self.grid_size_y, self.grid_size_x), dtype=int)
         else:
@@ -99,6 +107,8 @@ class Tetris:
         self.can_hold_shape = True
         self.current_shape = self.spawn_new_shape(shape=starting_shape)
         self.shape_spawm_delay = self.get_shape_spawn_delay()
+
+        self.gravity = gravity
 
     def spawn_new_shape(self, shape: ShapeTuple = None):
         if shape is None:
@@ -131,7 +141,7 @@ class Tetris:
         self.handle_action(action)
 
         self.shape_spawm_delay -= 1
-        if self.shape_spawm_delay <= 0:
+        if self.shape_spawm_delay <= 0 and self.gravity:
             is_shape_falling = self.current_shape.fall()
             self.shape_spawm_delay = self.get_shape_spawn_delay()
 
@@ -195,9 +205,6 @@ class Tetris:
                 return True
         return False
 
-    def game_over(self):
-        print("game_over")
-
 
 class Shape:
     def __init__(self, board: Tetris, shape: ShapeTuple):
@@ -250,9 +257,6 @@ class Shape:
             box.x, box.y = rotation_coords(box)
 
         return True
-
-    def delete(self):
-        self.boxes.clear()
 
     def can_move_box(self, box: Point, x: int, y: int):
         return self.can_move_box_to(box.x + x, box.y + y)
