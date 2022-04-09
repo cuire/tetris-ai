@@ -13,22 +13,28 @@ class TetrisEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     def __init__(self):
         self.game = None
         self.screen = None
-        self.action_space = gym.spaces.Discrete(8)
+        self.state = None
+        self.action_space = gym.spaces.Discrete(7)
 
     def step(self, action):
         assert self.action_space.contains(action)
-        self.game.step(action)
-        reward = 1.0
-        done = False
-        return np.array([]), reward, done, {}
+        assert self.state is not None, "Call reset before using step method."
+        self.state, reward, done = self.game.step(action)
+        return self.state, reward, done, {}
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, return_info: bool = False):
         super().reset(seed=seed)
 
         if self.game is None:
             self.game = Tetris()
 
         self.game.reset()
+        self.state = self.game.get_current_state()
+
+        if not return_info:
+            return np.array(self.state, dtype=np.float32)
+        else:
+            return np.array(self.state, dtype=np.float32), {}
 
     def render(self, mode="human", width=600, height=600):
 

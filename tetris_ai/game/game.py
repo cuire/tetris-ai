@@ -104,7 +104,7 @@ class Tetris:
                 reward = removed_lines_count * 100
                 done = self.is_game_over()
 
-        return reward, done
+        return self.get_current_state(), reward, done
 
     def handle_action(self, action: int):
         if action == 1:
@@ -121,6 +121,12 @@ class Tetris:
             self.hold_current_shape()
         if action == 7:
             self.reset()
+
+    def get_current_state(self):
+        field = np.copy(self.field)
+        for box in self.current_shape.boxes:
+            field[box.y][box.x] = 1
+        return field
 
     def froze_current_shape(self):
         for box in self.current_shape.boxes:
