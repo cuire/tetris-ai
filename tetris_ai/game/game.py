@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from random import choice
 
 import numpy as np
+
 from tetris_ai.game.shape import *
 
 BOX_SIZE = 20

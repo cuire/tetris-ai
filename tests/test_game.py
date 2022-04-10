@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from tetris_ai.game import SHAPES, Tetris, Tetromino
 from tetris_ai.game.shape import *
 

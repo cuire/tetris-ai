@@ -3,6 +3,7 @@ from typing import Optional, Union
 import gym
 import numpy as np
 import pygame
+
 from tetris_ai.game import Tetris
 from tetris_ai.view import TetrisView
 

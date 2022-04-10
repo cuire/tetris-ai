@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from tetris_ai.game import Tetris
 
 
