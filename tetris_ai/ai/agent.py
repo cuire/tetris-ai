@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from tetris_ai.ai.test import Experience, ReplayBuffer
+from tetris_ai.ai.memory import Experience, ReplayBuffer
 
 
 class Agent:

@@ -2,7 +2,7 @@ from typing import Iterator, Tuple
 
 from torch.utils.data.dataset import IterableDataset
 
-from tetris_ai.ai.test import ReplayBuffer
+from tetris_ai.ai.memory import ReplayBuffer
 
 
 class RLDataset(IterableDataset):
