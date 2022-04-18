@@ -1,17 +1,20 @@
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import torchvision.transforms as T
 
 
-class DeepQNetwork(nn.Module):
-    def __init__(self, state_size, fc1_dims, fc2_dims, action_size):
-        super(DeepQNetwork, self).__init__()
-        self.fc1 = nn.Linear(state_size, fc1_dims)
-        self.fc2 = nn.Linear(fc1_dims, fc2_dims)
-        self.head = nn.Linear(fc2_dims, action_size)
+class DQN(nn.Module):
+    def __init__(self, obs_size: int, n_actions: int, hidden_size: int = 128):
+        """
+        Args:
+            obs_size: observation/state size of the environment
+            n_actions: number of discrete actions available in the environment
+            hidden_size: size of hidden layers
+        """
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(obs_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, n_actions),
+        )
 
-    def forward(self, state):
-        x = F.relu(self.fc1(state))
-        x = F.relu(self.fc2(x))
-        return self.head(x)
+    def forward(self, x):
+        return self.net(x.float())

@@ -85,7 +85,7 @@ class Tetris:
     def step(self, action: int):
         assert self.field is not None
 
-        reward = 0
+        reward = 0.0
         done = False
 
         self.handle_action(action)
@@ -102,7 +102,7 @@ class Tetris:
                 removed_lines_count = self.remove_complete_lines()
                 self.current_shape = self.spawn_new_shape()
 
-                reward = removed_lines_count * 100
+                reward = float(removed_lines_count * 100)
                 done = self.is_game_over()
 
         return self.get_current_state(), reward, done
@@ -127,7 +127,7 @@ class Tetris:
         field = np.copy(self.field)
         for box in self.current_shape.boxes:
             field[box.y][box.x] = 1
-        return field
+        return np.resize(field, (field.shape[0] * field.shape[1],))
 
     def froze_current_shape(self):
         for box in self.current_shape.boxes:

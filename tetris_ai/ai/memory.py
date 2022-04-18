@@ -1,19 +1,43 @@
-import random
 from collections import deque, namedtuple
+from typing import Tuple
 
-Transition = namedtuple("Transition", ("state", "action", "next_state", "reward"))
+import numpy as np
+
+Experience = namedtuple(
+    "Experience",
+    field_names=["state", "action", "reward", "done", "new_state"],
+)
 
 
-class ReplayMemory(object):
-    def __init__(self, capacity):
-        self.memory = deque([], maxlen=capacity)
+class ReplayBuffer:
+    """Replay Buffer for storing past experiences allowing the agent to learn from them.
+    Args:
+        capacity: size of the buffer
+    """
 
-    def push(self, *args):
-        """Save a transition"""
-        self.memory.append(Transition(*args))
+    def __init__(self, capacity: int) -> None:
+        self.buffer = deque(maxlen=capacity)
 
-    def sample(self, batch_size):
-        return random.sample(self.memory, batch_size)
+    def __len__(self) -> None:
+        return len(self.buffer)
 
-    def __len__(self):
-        return len(self.memory)
+    def append(self, experience: Experience) -> None:
+        """Add experience to the buffer.
+        Args:
+            experience: tuple (state, action, reward, done, new_state)
+        """
+        self.buffer.append(experience)
+
+    def sample(self, batch_size: int) -> Tuple:
+        indices = np.random.choice(len(self.buffer), batch_size, replace=False)
+        states, actions, rewards, dones, next_states = zip(
+            *(self.buffer[idx] for idx in indices)
+        )
+
+        return (
+            np.array(states),
+            np.array(actions),
+            np.array(rewards, dtype=np.float32),
+            np.array(dones, dtype=bool),
+            np.array(next_states),
+        )
