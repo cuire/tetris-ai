@@ -12,10 +12,17 @@ class TetrisEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     metadata = {"render_modes": ["human", "rgb_array"]}
 
     def __init__(self):
-        self.game = None
+        self.game = Tetris()
         self.screen = None
         self.state = None
         self.action_space = gym.spaces.Discrete(7)
+
+        low_state = np.zeros((self.game.grid_size_y * self.game.grid_size_x), dtype=int)
+        high_state = np.ones((self.game.grid_size_y * self.game.grid_size_x), dtype=int)
+
+        self.observation_space = gym.spaces.Box(
+            low=low_state, high=high_state, dtype=int
+        )
 
     def step(self, action):
         assert self.action_space.contains(action)
@@ -25,10 +32,6 @@ class TetrisEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     def reset(self, *, seed: Optional[int] = None, return_info: bool = False):
         super().reset(seed=seed)
-
-        if self.game is None:
-            self.game = Tetris()
-
         self.game.reset()
         self.state = self.game.get_current_state()
 
