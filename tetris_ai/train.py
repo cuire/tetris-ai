@@ -1,3 +1,4 @@
+import argparse
 import os
 
 import torch
@@ -9,16 +10,19 @@ PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 
 
-def train():
+def train(args):
     model = DQNLightning()
 
     trainer = Trainer(
         gpus=AVAIL_GPUS,
-        max_epochs=1,
+        max_epochs=args.max_epochs,
     )
 
     trainer.fit(model)
 
 
 if __name__ == "__main__":
-    train()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--max_epochs", default=1)
+    args = parser.parse_args()
+    train(args)
