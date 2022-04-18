@@ -23,6 +23,6 @@ def train(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--max_epochs", default=1)
+    parser.add_argument("--max_epochs", type=int, default=1)
     args = parser.parse_args()
     train(args)
