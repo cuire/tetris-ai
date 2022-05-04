@@ -28,6 +28,7 @@ class TetrisEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         assert self.action_space.contains(action)
         assert self.state is not None, "Call reset before using step method."
         self.state, reward, done = self.game.step(action)
+        reward += 1 if not done else -5
         return self.state, reward, done, {}
 
     def reset(self, *, seed: Optional[int] = None, return_info: bool = False):
