@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import gym
 import torch
@@ -153,6 +153,36 @@ class DQNLightning(LightningModule):
 
         return OrderedDict({"loss": loss, "log": log, "progress_bar": status})
 
+    def test_step(self, *args, **kwargs) -> Dict[str, Tensor]:
+        """Evaluate the agent."""
+        total_rewards = self.run_n_episodes(n_epsiodes=1)
+        avg_rewards = sum(total_rewards) / len(total_rewards)
+        return {"avg_rewards": avg_rewards}
+
+    def run_n_episodes(self, n_epsiodes: int = 1, epsilon: float = 1.0) -> List[int]:
+        """Carries out N episodes of the environment with the current agent.
+        Args:
+            n_epsiodes: number of episodes to run
+            epsilon: epsilon value for DQN agent
+        """
+        total_rewards = []
+
+        for _ in range(n_epsiodes):
+            print("1")
+            self.agent.reset()
+            done = False
+            episode_reward = 0
+
+            while not done:
+                reward, done = self.agent.play_step(
+                    self.net, epsilon=epsilon, render=True
+                )
+                episode_reward += reward
+
+            total_rewards.append(episode_reward)
+
+        return total_rewards
+
     def configure_optimizers(self) -> List[Optimizer]:
         """Initialize Adam optimizer."""
         optimizer = Adam(self.net.parameters(), lr=self.hparams.lr)
@@ -169,6 +199,10 @@ class DQNLightning(LightningModule):
 
     def train_dataloader(self) -> DataLoader:
         """Get train loader."""
+        return self.__dataloader()
+
+    def test_dataloader(self) -> DataLoader:
+        """Get test loader."""
         return self.__dataloader()
 
     def get_device(self, batch) -> str:

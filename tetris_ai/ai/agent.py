@@ -55,6 +55,7 @@ class Agent:
         net: nn.Module,
         epsilon: float = 0.0,
         device: str = "cpu",
+        render: bool = False,
     ) -> Tuple[float, bool]:
         """Carries out a single interaction step between the agent and the environment.
         Args:
@@ -67,6 +68,8 @@ class Agent:
 
         action = self.get_action(net, epsilon, device)
 
+        if render:
+            self.env.render()
         # do step in the environment
         new_state, reward, done, _ = self.env.step(action)
 
