@@ -39,11 +39,12 @@ def main():
     env.game.reset()
 
     running = True
+    done = False
 
-    while running:
+    while running and not done:
         env.render()
         action, running = handle_events()
-        env.step(action)
+        _, _, done, _ = env.step(action)
 
     env.close()
 
