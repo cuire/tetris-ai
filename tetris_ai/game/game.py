@@ -187,7 +187,9 @@ class Tetromino:
         return self.move(0, 1)
 
     def hard_drop(self):
-        ...
+        can_fall = True
+        while can_fall:
+            can_fall = self.fall()
 
     def rotate(self):
         center = self.center
