@@ -42,9 +42,7 @@ class TetrisEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             return np.array(self.state, dtype=np.float32), {}
 
     def render(self, mode="human", width=600, height=600):
-
-        if self.game is None:
-            return None
+        assert self.state is not None, "Call reset before using render method."
 
         if self.screen is None:
             pygame.init()
@@ -57,7 +55,7 @@ class TetrisEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         if mode == "rgb_array":
             return np.transpose(
-                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+                np.array(pygame.surfarray.pixels3d(self.screen.display)), axes=(1, 0, 2)
             )
 
     def close(self):

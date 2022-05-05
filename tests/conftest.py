@@ -1,3 +1,4 @@
+import gym
 import numpy as np
 import pytest
 
@@ -40,3 +41,7 @@ def game_with_filled_field() -> Tetris:
     )
     game.reset(field=test_field)
     return game
+
+@pytest.fixture()
+def tetris_env():
+    return gym.make("Tetris-v0")
