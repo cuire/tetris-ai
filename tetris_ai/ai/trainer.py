@@ -20,18 +20,17 @@ class DQNLightning(LightningModule):
 
     def __init__(
         self,
-        batch_size: int = 16,
-        lr: float = 1e-2,
+        batch_size: int = 32,
+        lr: float = 1e-4,
         env: str = "Tetris-v0",
         gamma: float = 0.99,
         sync_rate: int = 10,
-        replay_size: int = 1000,
-        warm_start_size: int = 1000,
-        eps_last_frame: int = 1000,
+        replay_size: int = 100_000,
+        warm_start_steps: int = 1000,
+        eps_last_frame: int = 600,
         eps_start: float = 1.0,
         eps_end: float = 0.01,
         episode_length: int = 200,
-        warm_start_steps: int = 1000,
     ) -> None:
         """
         Args:
@@ -41,12 +40,11 @@ class DQNLightning(LightningModule):
             gamma: discount factor
             sync_rate: how many frames do we update the target network
             replay_size: capacity of the replay buffer
-            warm_start_size: how many samples do we use to fill our buffer at the start of training
+            warm_start_steps: how many samples do we use to fill our buffer at the start of training
             eps_last_frame: what frame should epsilon stop decaying
             eps_start: starting value of epsilon
             eps_end: final value of epsilon
             episode_length: max length of an episode
-            warm_start_steps: max episode reward in the environment
         """
         super().__init__()
         self.save_hyperparameters()
