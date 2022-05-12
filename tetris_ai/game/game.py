@@ -41,8 +41,8 @@ class Tetris:
         self.field: np.ndarray = None
         self.current_shape: Tetromino = None
         self.can_hold_shape: bool = None
-        self.holded_shape: ShapeTuple = None
-        self.next_shape: ShapeTuple = None
+        self.holded_shape: Shape = None
+        self.next_shape: Shape = None
         self.shape_spawm_delay: int = None
 
         self.gravity = None
@@ -60,7 +60,7 @@ class Tetris:
 
         self.gravity = gravity
 
-    def spawn_new_shape(self, shape: ShapeTuple = None):
+    def spawn_new_shape(self, shape: Shape = None):
         if shape is None:
             shape = self.next_shape or choice(SHAPES)
             self.next_shape = choice(SHAPES)
@@ -163,7 +163,7 @@ class Tetris:
 
 
 class Tetromino:
-    def __init__(self, board: Tetris, shape: ShapeTuple):
+    def __init__(self, board: Tetris, shape: Shape):
         self.name = shape.name
         self.board = board
         self.shape = shape
