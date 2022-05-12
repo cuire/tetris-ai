@@ -1,5 +1,7 @@
+import argparse
+import os
 from collections import OrderedDict
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import gym
 import torch
@@ -14,12 +16,15 @@ from tetris_ai.ai.dataset import RLDataset
 from tetris_ai.ai.memory import ReplayBuffer
 from tetris_ai.ai.model import DQN
 
+CPU_COUNT = os.cpu_count()
+
 
 class DQNLightning(LightningModule):
     """Basic DQN Model."""
 
     def __init__(
         self,
+        *,
         batch_size: int = 32,
         lr: float = 1e-4,
         env: str = "Tetris-v0",
@@ -31,10 +36,12 @@ class DQNLightning(LightningModule):
         eps_start: float = 1.0,
         eps_end: float = 0.01,
         episode_length: int = 200,
+        dataloader_num_workers: int = CPU_COUNT,
+        **kwargs,
     ) -> None:
         """
         Args:
-            batch_size: size of the batches")
+            batch_size: size of the batches"
             lr: learning rate
             env: gym environment tag
             gamma: discount factor
@@ -44,7 +51,8 @@ class DQNLightning(LightningModule):
             eps_last_frame: what frame should epsilon stop decaying
             eps_start: starting value of epsilon
             eps_end: final value of epsilon
-            episode_length: max length of an episode
+            episode_length: dataloader sample size to use at a time
+            dataloader_num_workers: number of workers to use in dataset creation
         """
         super().__init__()
         self.save_hyperparameters()
@@ -192,6 +200,7 @@ class DQNLightning(LightningModule):
         dataloader = DataLoader(
             dataset=dataset,
             batch_size=self.hparams.batch_size,
+            num_workers=self.hparams.dataloader_num_workers,
         )
         return dataloader
 
@@ -206,3 +215,70 @@ class DQNLightning(LightningModule):
     def get_device(self, batch) -> str:
         """Retrieve device currently being used by minibatch."""
         return batch[0].device.index if self.on_gpu else "cpu"
+
+    @staticmethod
+    def add_model_specific_args(
+        arg_parser: argparse.ArgumentParser,
+    ) -> argparse.ArgumentParser:
+        """Adds arguments for DQN model.
+        Args:
+            arg_parser: parent parser
+        """
+        arg_parser.add_argument(
+            "--batch_size", type=int, default=32, help="size of the batches"
+        )
+        arg_parser.add_argument("--lr", type=float, default=1e-4, help="learning rate")
+        arg_parser.add_argument(
+            "--env", type=str, default="Tetris-v0", help="gym environment tag"
+        )
+        arg_parser.add_argument(
+            "--gamma", type=float, default=0.99, help="discount factor"
+        )
+        arg_parser.add_argument(
+            "--sync_rate",
+            type=int,
+            default=10,
+            help="how many frames do we update the target network",
+        )
+        arg_parser.add_argument(
+            "--replay_size",
+            type=int,
+            default=100_000,
+            help="capacity of the replay buffer",
+        )
+        arg_parser.add_argument(
+            "--warm_start_steps",
+            type=int,
+            default=1000,
+            help="how many samples do we use to fill our buffer at the start of training",
+        )
+        arg_parser.add_argument(
+            "--eps_last_frame",
+            type=int,
+            default=600,
+            help="what frame should epsilon stop decaying",
+        )
+        arg_parser.add_argument(
+            "--eps_start", type=float, default=1.0, help="starting value of epsilon"
+        )
+        arg_parser.add_argument(
+            "--eps_end", type=float, default=0.01, help="final value of epsilon"
+        )
+        arg_parser.add_argument(
+            "--episode_length",
+            type=int,
+            default=200,
+            help="how many frames do we update the target network",
+        )
+        arg_parser.add_argument(
+            "--dataloader_num_workers",
+            type=int,
+            default=CPU_COUNT,
+            help="number of workers to use in dataset creation",
+        )
+
+        return arg_parser
+
+    @classmethod
+    def from_argparse_args(cls: Any, args: argparse.ArgumentParser, **kwargs) -> Any:
+        return cls(**args.__dict__)

@@ -11,7 +11,7 @@ AVAIL_GPUS = min(1, torch.cuda.device_count())
 
 
 def train(args):
-    model = DQNLightning()
+    model = DQNLightning.from_argparse_args(args)
 
     trainer = Trainer(
         gpus=AVAIL_GPUS,
@@ -23,6 +23,7 @@ def train(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser = DQNLightning.add_model_specific_args(parser)
     parser.add_argument("--max_epochs", type=int, default=1)
     args = parser.parse_args()
     train(args)
