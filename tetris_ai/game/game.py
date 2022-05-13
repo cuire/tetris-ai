@@ -43,6 +43,7 @@ class Tetris:
     holded_shape: Union[Shape, None] = None
     next_shape: Union[Shape, None] = None
     shape_spawm_delay: int
+    total_score: float = 0.0
 
     def __init__(self, grid_size_x: int = 10, grid_size_y: int = 20):
         self.grid_size_x = grid_size_x
@@ -107,6 +108,8 @@ class Tetris:
 
                 reward = float(removed_lines_count * 100)
                 done = self.is_game_over()
+
+        self.total_score += reward
 
         return self.get_current_state(), reward, done
 

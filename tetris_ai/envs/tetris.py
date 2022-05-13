@@ -41,15 +41,11 @@ class TetrisEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         else:
             return np.array(self.state, dtype=np.float32), {}
 
-    def render(self, mode="human", width=600, height=600):
+    def render(self, mode="human"):
         assert self.state is not None, "Call reset before using render method."
 
         if self.screen is None:
-            pygame.init()
-            pygame.display.init()
-            screen = pygame.display.set_mode((width, height))
-            pygame.display.set_caption("Tetris")
-            self.screen = TetrisView(game=self.game, parent=screen)
+            self.screen = TetrisView(game=self.game)
 
         self.screen.render()
 
