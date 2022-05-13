@@ -168,7 +168,7 @@ class Tetris:
         return False
 
     def get_reward(self, removed_lines_count: int):
-        return {1: 100, 2: 300, 3: 700, 4: 1500}.get(removed_lines_count)
+        return {0: 0, 1: 100, 2: 300, 3: 700, 4: 1500}.get(removed_lines_count)
 
 
 class Tetromino:
