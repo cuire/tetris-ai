@@ -1,5 +1,5 @@
 from collections import deque, namedtuple
-from typing import Tuple
+from typing import Deque, Tuple
 
 import numpy as np
 
@@ -16,7 +16,7 @@ class ReplayBuffer:
     """
 
     def __init__(self, capacity: int) -> None:
-        self.buffer = deque(maxlen=capacity)
+        self.buffer: Deque[Experience] = deque(maxlen=capacity)
 
     def __len__(self) -> None:
         return len(self.buffer)
