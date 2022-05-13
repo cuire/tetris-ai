@@ -16,8 +16,6 @@ from tetris_ai.ai.dataset import RLDataset
 from tetris_ai.ai.memory import ReplayBuffer
 from tetris_ai.ai.model import DQN
 
-CPU_COUNT = os.cpu_count()
-
 
 class DQNLightning(LightningModule):
     """Basic DQN Model."""
@@ -36,7 +34,6 @@ class DQNLightning(LightningModule):
         eps_start: float = 1.0,
         eps_end: float = 0.01,
         episode_length: int = 200,
-        dataloader_num_workers: int = CPU_COUNT,
         **kwargs,
     ) -> None:
         """
@@ -52,7 +49,6 @@ class DQNLightning(LightningModule):
             eps_start: starting value of epsilon
             eps_end: final value of epsilon
             episode_length: dataloader sample size to use at a time
-            dataloader_num_workers: number of workers to use in dataset creation
         """
         super().__init__()
         self.save_hyperparameters()
@@ -269,12 +265,6 @@ class DQNLightning(LightningModule):
             type=int,
             default=200,
             help="how many frames do we update the target network",
-        )
-        arg_parser.add_argument(
-            "--dataloader_num_workers",
-            type=int,
-            default=CPU_COUNT,
-            help="number of workers to use in dataset creation",
         )
 
         return arg_parser
