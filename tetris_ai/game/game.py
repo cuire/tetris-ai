@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from random import choice
+from typing import Union
 
 import numpy as np
 
@@ -34,16 +37,16 @@ class Tetris:
 
     """
 
+    field: np.ndarray
+    current_shape: Tetromino
+    can_hold_shape: bool
+    holded_shape: Union[Shape, None] = None
+    next_shape: Union[Shape, None] = None
+    shape_spawm_delay: int
+
     def __init__(self, grid_size_x: int = 10, grid_size_y: int = 20):
         self.grid_size_x = grid_size_x
         self.grid_size_y = grid_size_y
-
-        self.field: np.ndarray = None
-        self.current_shape: Tetromino = None
-        self.can_hold_shape: bool = None
-        self.holded_shape: Shape = None
-        self.next_shape: Shape = None
-        self.shape_spawm_delay: int = None
 
         self.gravity = None
 
