@@ -106,7 +106,7 @@ class Tetris:
                 removed_lines_count = self.remove_complete_lines()
                 self.current_shape = self.spawn_new_shape()
 
-                reward = float(removed_lines_count * 100)
+                reward = float(self.get_reward(removed_lines_count))
                 done = self.is_game_over()
 
         self.total_score += reward
@@ -166,6 +166,9 @@ class Tetris:
             if not self.current_shape.can_move_box(box, 0, 1):
                 return True
         return False
+
+    def get_reward(self, removed_lines_count: int):
+        return {1: 100, 2: 300, 3: 700, 4: 1500}.get(removed_lines_count)
 
 
 class Tetromino:
