@@ -42,7 +42,7 @@ class TetrisView:
         self.font = pygame.font.Font(font_path, FONT_SIZE)
 
     def render(self):
-        self.display.fill((0, 0, 0))
+        self.display.fill(self.background_color)
 
         self._render_grid(self.game.grid_size_x, self.game.grid_size_y)
         self._render_current_shape(self.game.current_shape)
