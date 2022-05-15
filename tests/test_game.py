@@ -100,10 +100,6 @@ def test_game_step(game_with_empty_field, action):
         game_with_empty_field.step(action)
 
 
-def test_game_level_up(game_with_empty_field):
-    game_with_empty_field.level_up()
-
-
 @pytest.mark.parametrize(
     "x, y, expected",
     [
