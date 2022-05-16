@@ -21,9 +21,13 @@ def train(args):
     trainer.fit(model)
 
 
-if __name__ == "__main__":
+def get_args() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser = DQNLightning.add_model_specific_args(parser)
     parser.add_argument("--max_epochs", type=int, default=1)
     args = parser.parse_args()
-    train(args)
+    return args
+
+
+if __name__ == "__main__":
+    train(get_args())
