@@ -8,8 +8,6 @@ import numpy as np
 
 from tetris_ai.game.shape import *
 
-BOX_SIZE = 20
-
 
 @dataclass
 class Point:
@@ -82,9 +80,6 @@ class Tetris:
         self.can_hold_shape = False
 
         return True
-
-    def level_up(self):
-        ...
 
     def step(self, action: int):
         assert self.field is not None
