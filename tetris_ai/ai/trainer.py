@@ -196,7 +196,6 @@ class DQNLightning(LightningModule):
         dataloader = DataLoader(
             dataset=dataset,
             batch_size=self.hparams.batch_size,
-            num_workers=self.hparams.dataloader_num_workers,
         )
         return dataloader
 
